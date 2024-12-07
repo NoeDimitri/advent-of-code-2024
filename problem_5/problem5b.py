@@ -16,7 +16,6 @@ for line in ordering:
 ans = 0
 
 # I'll be honest I didn't expect this to work lol
-
 for update in updates:
     after_count = {}
     pages = update.split(",")
