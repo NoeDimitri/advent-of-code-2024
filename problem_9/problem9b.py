@@ -1,5 +1,3 @@
-import copy
-
 class disk_file():
     def __init__(self, id, size):
         self.id = id
