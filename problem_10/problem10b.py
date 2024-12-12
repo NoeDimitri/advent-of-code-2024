@@ -38,7 +38,7 @@ for start_point in start_points:
     while queue:
         cur_point = queue.popleft()
 
-        if grid[cur_point.y][cur_point.x] == 9 and cur_point.turn_to_tuple():
+        if grid[cur_point.y][cur_point.x] == 9:
             ans += 1
 
         for direction in directions:
