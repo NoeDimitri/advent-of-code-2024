@@ -1,5 +1,3 @@
-
-
 with open("input.txt", "r") as rf:
     stones = [int(num) for num in rf.readline().strip().split()]
 

@@ -29,11 +29,7 @@ with open("input.txt", "r") as rf:
             if lines[y][x] == "0":
                 start_points.append(coordinate(x, y))
 
-# for line in grid:
-#     print(line)
-
 ans = 0
-
 
 for start_point in start_points:
     queue = deque()
