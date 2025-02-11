@@ -22,12 +22,20 @@ class coordinate():
     def __str__(self):
         return f"({self.x}, {self.y})"
     
-directions = [coordinate(-1, 0), coordinate(0, -1), coordinate(1, 0), coordinate(0, 1)]
-#left, up, right, down
+directions = [coordinate(0, -1), coordinate(1, 0), coordinate(0, 1), coordinate(-1, 0)]
+
+corner_directions = [
+    [coordinate(-1, 0), coordinate(-1, -1), coordinate(0, -1)],
+    [coordinate(0, -1), coordinate(1, -1), coordinate(1, 0)],
+    [coordinate(1, 0), coordinate(1, 1), coordinate(0, 1)],
+    [coordinate(0, 1), coordinate(-1, 1), coordinate(-1, 0)],
+]
+
     
 def explore(start : coordinate, grid, visited):
     queue = deque()
     queue.append(start)
+    perimeter = 0
     area = 0
 
     while queue:
@@ -47,44 +55,33 @@ def explore(start : coordinate, grid, visited):
                 possible_coord.get_value(grid) == cur_coord.get_value(grid)):
                     if possible_coord.turn_to_tuple() not in visited:
                         queue.append(possible_coord)
+        
+        for scan_directions in corner_directions:
+            coord_1 = cur_coord.add_coord(scan_directions[0])
+            coord_2 = cur_coord.add_coord(scan_directions[1]) # corner coord
+            coord_3 = cur_coord.add_coord(scan_directions[2])
 
-    return start.get_value(grid), area
+            if ( 
+                (not coord_1.is_valid(grid) or coord_1.get_value(grid) != cur_coord.get_value(grid)) and
+                (not coord_3.is_valid(grid) or coord_3.get_value(grid) != cur_coord.get_value(grid))
+            ):
+                perimeter += 1
 
-def find_num_sides(start_coord: coordinate, grid):
-    dir_index = 2 # start facing right
-    num_sides = 1 # assume we counted top-most wall already
+            if (
+                (coord_1.is_valid(grid) and coord_1.get_value(grid) == cur_coord.get_value(grid)) and
+                (not coord_2.is_valid(grid) or coord_2.get_value(grid) != cur_coord.get_value(grid)) and
+                (coord_3.is_valid(grid) and coord_3.get_value(grid) == cur_coord.get_value(grid))
+            ):
+                perimeter += 1
 
-    cur_coord = start_coord
-
-    right_coord, down_coord = start_coord.add_coord(directions[2]), start_coord.add_coord(directions[3])
-
-    if (right_coord.is_valid(grid) and right_coord.get_value(grid) == right_coord.get_value(grid)):
-        dir_index = 2
-        cur_coord = right_coord
-    elif (down_coord.is_valid(grid) and down_coord.get_value(grid) == down_coord.get_value(grid)):
-        dir_index = 3
-        cur_coord = down_coord
-    else:
-        # all sides not valid, must be just one block
-        return 4
-    
-    while cur_coord.turn_to_tuple() != start_coord.turn_to_tuple():
-        temp_coord = cur_coord.add_coord(directions[dir_index])
-        while (not temp_coord.is_valid(grid) or 
-            temp_coord.get_value(grid) != temp_coord.get_value(grid)):
-                dir_index = (dir_index + 1) % len(directions)
-                num_sides += 1
-                temp_coord = cur_coord.add_coord(directions[dir_index])
-        cur_coord = temp_coord
-                
-    return start_coord.get_value(grid), num_sides
-    
+    return start.get_value(grid), area, perimeter, area*perimeter
 
 grid = []
 
 with open("input.txt", "r") as rf:
     for line in rf.readlines():
         grid.append([letter for letter in line.strip()])
+
 
 visited = set()
 
@@ -93,7 +90,6 @@ for y in range(len(grid)):
     for x in range(len(grid[0])):
         if (x, y) not  in visited:
             starting_coord = coordinate(x, y)
-            ans += explore(starting_coord, grid, visited)[1]
-            print(find_num_sides(starting_coord, grid))
+            ans += explore(starting_coord, grid, visited)[3]
 
-# print(ans)
+print(ans)
